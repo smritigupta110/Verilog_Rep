@@ -1,1 +1,36 @@
+4-BIT RIPPLE CARRY ADDER
+module fa(input a,b,cin, output s,co) ;
+  assign s= a^b^cin;
+  assign co= (a&b) | (a^b)&cin;
+endmodule
+
+module ripple_adder(input [3:0]a,b, input cin, output[3:0] s,co);
+  genvar g;
+  fa fa0(a[0],b[0],cin,s[0],co[0]);
+  generate 
+    for(g=1; g<4; g++)begin 
+      fa fa_all(a[g],b[g],co[g-1],s[g],co[g]);
+    end
+  endgenerate
+endmodule
+
+TESTBENCH
+module tb;
+  reg [3:0]a,b;
+  reg cin;
+  wire [3:0]s,co;
+  wire [3:0]add;
+  
+  ripple_adder ra(a,b,cin,s,co);
+  assign add= {co[3],s};
+  
+  initial begin 
+    $monitor("a=%b, b=%b, cin=%b -> s=%b, co[3] =%b, add=%d", a,b,cin, s,co[3],add);
+    
+    a=2; b=4; cin=1; #2;
+    a=6; b=2; cin=1; #4;
+    a= 12; b=1; cin=0;
+    
+  end
+endmodule
 
